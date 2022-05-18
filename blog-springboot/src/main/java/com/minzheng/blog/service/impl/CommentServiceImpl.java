@@ -1,5 +1,6 @@
 package com.minzheng.blog.service.impl;
 
+import cn.hutool.http.HtmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -16,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.minzheng.blog.service.RedisService;
 import com.minzheng.blog.util.HTMLUtils;
 import com.minzheng.blog.util.PageUtils;
+import com.minzheng.blog.util.SensitiveUtils;
 import com.minzheng.blog.util.UserUtils;
 import com.minzheng.blog.vo.*;
 import org.springframework.amqp.core.Message;
@@ -124,12 +126,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentDao, Comment> impleme
         WebsiteConfigVO websiteConfig = blogInfoService.getWebsiteConfig();
         Integer isReview = websiteConfig.getIsCommentReview();
         // 过滤标签
-        commentVO.setCommentContent(HTMLUtils.deleteTag(commentVO.getCommentContent()));
+        String commentContent = HtmlUtil.filter(SensitiveUtils.filter(commentVO.getCommentContent()));
         Comment comment = Comment.builder()
                 .userId(UserUtils.getLoginUser().getUserInfoId())
                 .replyUserId(commentVO.getReplyUserId())
                 .topicId(commentVO.getTopicId())
-                .commentContent(commentVO.getCommentContent())
+                .commentContent(commentContent)
                 .parentId(commentVO.getParentId())
                 .type(commentVO.getType())
                 .isReview(isReview == TRUE ? FALSE : TRUE)

@@ -87,7 +87,7 @@
             </span>
           </div>
           <!-- 评论内容 -->
-          <p v-html="item.commentContent" class="comment-content"></p>
+          <p v-html="content(item.commentContent)" class="comment-content"></p>
           <!-- 回复人 -->
           <div
             style="display:flex"
@@ -141,7 +141,7 @@
                   </a>
                   ，
                 </template>
-                <span v-html="reply.commentContent" />
+                <span v-html="content(reply.commentContent)" />
               </p>
             </div>
           </div>
@@ -309,15 +309,6 @@ export default {
         this.$toast({ type: "error", message: "评论不能为空" });
         return false;
       }
-      //解析表情
-      var reg = /\[.+?\]/g;
-      this.commentContent = this.commentContent.replace(reg, function(str) {
-        return (
-          "<img src= '" +
-          EmojiList[str] +
-          "' width='24'height='24' style='margin: 0 1px;vertical-align: text-bottom'/>"
-        );
-      });
       //发送请求
       const path = this.$route.path;
       const arr = path.split("/");
@@ -397,6 +388,15 @@ export default {
       return function(commentId) {
         var commentLikeSet = this.$store.state.commentLikeSet;
         return commentLikeSet.indexOf(commentId) != -1 ? "like-active" : "like";
+      };
+    },
+    content() {
+      return function(content) {
+        //解析表情
+        var reg = /\[.+?\]/g;
+        return content.replace(reg, function(str) {
+          return `<img src= '${EmojiList[str]}' width='24'height='24' style='margin: 0 1px;vertical-align: text-bottom'/>`;
+        });
       };
     }
   },
